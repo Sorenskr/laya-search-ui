@@ -3,920 +3,594 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>发光搜索框截图生成器 - 标准竖屏高保真版</title>
-  <!-- Tailwind CSS -->
+  <title>Laya 聊天记录生成器</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2canvas 2.5x 高清截图引擎 -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <!-- Lucide 矢量图标库 -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
+  <!-- html2canvas 用于高清网页截图导出 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
-    * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    }
-
-    /* 1. 原图复刻：粉紫渐变暖金流光辉光 */
-    .glow-purple-gold {
-      background: linear-gradient(90deg, #db2777 0%, #c026d3 30%, #a855f7 65%, #f59e0b 98%);
-      box-shadow: 
-        0 0 16px rgba(219, 39, 119, 0.55),
-        0 0 32px rgba(168, 85, 247, 0.4),
-        0 0 50px rgba(245, 158, 11, 0.28);
-    }
-
-    /* 2. 赛博霓虹蓝粉 */
-    .glow-cyan-pink {
-      background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #ec4899 100%);
-      box-shadow: 
-        0 0 18px rgba(6, 182, 212, 0.55),
-        0 0 36px rgba(236, 72, 153, 0.4);
-    }
-
-    /* 3. 极光冰葱绿 */
-    .glow-aurora-green {
-      background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
-      box-shadow: 
-        0 0 18px rgba(16, 185, 129, 0.55),
-        0 0 36px rgba(6, 182, 212, 0.35);
-    }
-
-    /* 4. 暗夜落日鎏金 */
-    .glow-sunset-gold {
-      background: linear-gradient(90deg, #e11d48 0%, #ea580c 50%, #facc15 100%);
-      box-shadow: 
-        0 0 18px rgba(225, 29, 72, 0.55),
-        0 0 38px rgba(250, 204, 21, 0.35);
-    }
-
-    /* 5. 幻彩AI流光 */
-    .glow-rainbow-ai {
-      background: linear-gradient(90deg, #ec4899 0%, #8b5cf6 25%, #3b82f6 50%, #10b981 75%, #f59e0b 100%);
-      box-shadow: 
-        0 0 20px rgba(139, 92, 246, 0.55),
-        0 0 40px rgba(236, 72, 153, 0.35);
-    }
-
-    /* 幽蓝输入光标闪烁动画 */
-    @keyframes typing-cursor-blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-    .animate-cursor-blink {
-      animation: typing-cursor-blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    /* 真实手机外壳阴影与反光 */
-    .phone-realistic-frame {
-      box-shadow: 
-        0 25px 60px -15px rgba(0, 0, 0, 0.75),
-        0 12px 28px -8px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.12),
-        inset 0 1px 2px rgba(255, 255, 255, 0.15);
-    }
-
-    /* 屏幕玻璃微反光 */
-    .screen-glass-glare {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 40%, transparent 60%);
-    }
-
-    /* 纯黑沉浸滚动条 */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #09090b;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #27272a;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3f3f46;
+    /* 自定义美化滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* 繁体苹方/黑体字体配置，还原原生手机端质感 */
+    .font-phone {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
     }
   </style>
 </head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
 
-<body class="bg-[#09090b] text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
-
-  <!-- 顶部导航栏 -->
-  <header class="border-b border-zinc-800/80 bg-zinc-900/90 backdrop-blur sticky top-0 z-40 px-4 sm:px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 via-purple-600 to-amber-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
-        <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+  <!-- 顶部导航栏 (简体中文) -->
+  <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center font-bold text-lg tracking-wider border border-white/30 shadow-inner">
+          Laya
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight">Laya 聊天记录生成器</h1>
+          <p class="text-xs text-blue-200">一键生成高清逼真对话截图 · 营销与社交展示神器</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-2">
-          发光搜索框截图生成器
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-            正向竖屏 9:19.5
-          </span>
-        </h1>
-        <p class="text-xs text-zinc-400 hidden sm:block">标准垂直朝向 · 自定义输入文字 · 一键导出原图画质</p>
+      <div class="flex items-center space-x-2">
+        <button onclick="applyPreset('icebreak')" class="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg transition border border-white/20">
+          破冰剧本
+        </button>
+        <button onclick="applyPreset('dating')" class="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg transition border border-white/20">
+          约会剧本
+        </button>
+        <button onclick="exportImage()" class="px-4 py-1.5 text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition shadow-md flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          一键导出截图
+        </button>
       </div>
-    </div>
-
-    <!-- 顶部动作按钮 -->
-    <div class="flex items-center gap-2.5">
-      <button id="btn-quick-reset" class="px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-1.5">
-        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-        <span class="hidden sm:inline">重置为原图文字</span>
-      </button>
-      <button id="btn-header-export" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5 active:scale-95">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span>下载高清截图</span>
-      </button>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <!-- 主体工作区 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- 左侧控制面板 (100% 简体中文) -->
+    <div class="lg:col-span-7 space-y-6">
 
-    <!-- 左侧控制面板 (5列) -->
-    <div class="lg:col-span-5 flex flex-col space-y-4 bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur order-2 lg:order-1">
-      
-      <!-- 截图模式选择 -->
-      <div>
-        <label class="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2 flex items-center justify-between">
-          <span><i data-lucide="layout" class="w-3.5 h-3.5 inline mr-1 text-purple-400"></i> 输出截图模式</span>
-          <span class="text-[11px] text-zinc-500 font-normal">生成你要的截图类型</span>
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="mode-pure-screen" class="screenshot-mode-btn active p-2.5 rounded-xl border-2 border-purple-500 bg-zinc-800/90 text-left transition flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
-              <i data-lucide="crop" class="w-4 h-4"></i>
+      <!-- 模块 1：对方与我方资料设置 -->
+      <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 border-b pb-3">
+          <span class="w-2 h-4 bg-blue-600 rounded-full"></span>
+          对方与个人资料设置
+        </h2>
+        
+        <!-- 对方头像配置 -->
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-600">对方头像（点击预设或自定义上传）</label>
+          <div class="flex items-center gap-3">
+            <img id="target-avatar-preview" src="" class="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow-sm bg-slate-100" alt="头像">
+            <div class="flex-1 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="selectTargetPreset(0)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded border text-slate-600">甜美女生</button>
+                <button type="button" onclick="selectTargetPreset(1)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded border text-slate-600">气质御姐</button>
+                <button type="button" onclick="selectTargetPreset(2)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded border text-slate-600">可爱少女</button>
+                <button type="button" onclick="selectTargetPreset(3)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded border text-slate-600">帅气男生</button>
+              </div>
+              <label class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded cursor-pointer border transition">
+                <span>📁 自定义上传对方头像</span>
+                <input type="file" accept="image/*" class="hidden" onchange="uploadAvatar(event, 'target')">
+              </label>
             </div>
-            <div>
-              <div class="text-xs font-semibold text-white">纯净手机屏幕直出</div>
-              <div class="text-[10px] text-zinc-400">如同真机按电源键截屏</div>
-            </div>
-          </button>
-
-          <button id="mode-phone-frame" class="screenshot-mode-btn p-2.5 rounded-xl border border-zinc-700/60 bg-zinc-800/40 text-left transition flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0">
-              <i data-lucide="smartphone" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <div class="text-xs font-semibold text-zinc-300">真机外壳质感模组</div>
-              <div class="text-[10px] text-zinc-400">带金属机身边框与微缝</div>
-            </div>
-          </button>
+          </div>
         </div>
-      </div>
 
-      <!-- 搜索框内容设置 -->
-      <div class="space-y-3 pt-3 border-t border-zinc-800">
-        <label class="text-xs font-semibold text-zinc-300 uppercase tracking-wider block flex items-center justify-between">
-          <span><i data-lucide="type" class="w-3.5 h-3.5 inline mr-1 text-purple-400"></i> 搜索框内容自定义</span>
-          <span class="text-[11px] text-zinc-500 font-normal">也可直接点击右侧屏幕打字</span>
-        </label>
+        <!-- 对方资料输入 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">昵称 (显示在名片与顶栏)</label>
+            <input type="text" id="target-name" value="柔柔" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">年龄</label>
+            <input type="text" id="target-age" value="23" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">身高</label>
+            <input type="text" id="target-height" value="165cm" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">城市地区</label>
+            <input type="text" id="target-city" value="台北市" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
 
-        <div>
-          <label class="text-xs text-zinc-400 block mb-1">框内搜索文字</label>
-          <div class="relative">
-            <input type="text" id="input-query-text" value="1896" placeholder="输入任何文字、暗号、表白语..." 
-              class="w-full bg-zinc-950 border border-zinc-700 focus:border-purple-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition font-medium">
-            <button id="btn-clear-query" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-xs px-2 py-1 bg-zinc-800/60 rounded-md">
-              清空
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">星座</label>
+            <input type="text" id="target-constellation" value="雙子座" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">距离提示</label>
+            <input type="text" id="target-distance" value="約 2.1 km" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">在线状态</label>
+            <select id="target-online" onchange="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg bg-white outline-none">
+              <option value="true">在线 (显示绿点)</option>
+              <option value="false">离线 (隐藏绿点)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 我方头像配置 -->
+        <div class="pt-3 border-t flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img id="my-avatar-preview" src="" class="w-10 h-10 rounded-full object-cover border border-slate-300" alt="我方">
+            <div>
+              <div class="text-xs font-semibold text-slate-700">我方头像（自己发送的气泡）</div>
+              <div class="text-[11px] text-slate-400">支持本地相册图片无损导入</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="selectMyPreset(0)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded border">阳光男生</button>
+            <button type="button" onclick="selectMyPreset(1)" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded border">潮酷男生</button>
+            <label class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded cursor-pointer border border-blue-200">
+              <span>自定义上传</span>
+              <input type="file" accept="image/*" class="hidden" onchange="uploadAvatar(event, 'my')">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 模块 2：状态栏与顶部硬件 -->
+      <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 border-b pb-3">
+          <span class="w-2 h-4 bg-indigo-600 rounded-full"></span>
+          手机状态栏与硬件设置
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">系统时间</label>
+            <input type="text" id="status-time" value="16:04" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">手机电量 (%)</label>
+            <input type="number" id="status-battery" value="86" min="1" max="100" oninput="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">网络信号</label>
+            <select id="status-network" onchange="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg bg-white outline-none">
+              <option value="5G">双卡 5G + Wi-Fi</option>
+              <option value="WIFI">仅满格 Wi-Fi</option>
+              <option value="4G">4G 数据信号</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">VPN 状态</label>
+            <select id="status-vpn" onchange="render()" class="w-full text-xs px-2.5 py-1.5 border rounded-lg bg-white outline-none">
+              <option value="show">显示 VPN 图标</option>
+              <option value="hide">隐藏 VPN 图标</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-1 flex flex-wrap items-center gap-4 text-xs text-slate-600">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="show-shield" checked onchange="render()" class="rounded text-blue-600">
+            <span>安全盾牌徽标</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="show-alipay" checked onchange="render()" class="rounded text-blue-600">
+            <span>支付/应用通知角标</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="show-camera" checked onchange="render()" class="rounded text-blue-600">
+            <span>前置镜头开孔</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="show-frame" checked onchange="render()" class="rounded text-blue-600">
+            <span>展示黑色拟真机身外壳</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 模块 3：对话内容编辑 (核心) -->
+      <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between border-b pb-3">
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <span class="w-2 h-4 bg-emerald-600 rounded-full"></span>
+            聊天记录编排
+          </h2>
+          <div class="flex items-center gap-2">
+            <button onclick="addMessage('other')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-lg transition">
+              + 对方发消息
+            </button>
+            <button onclick="addMessage('me')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded-lg transition">
+              + 我方发消息
+            </button>
+            <button onclick="addSystemNotice()" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs rounded-lg transition">
+              + 系统守则/时间
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">右侧按钮文字</label>
-            <input type="text" id="input-cancel-btn-text" value="取消" placeholder="取消" 
-              class="w-full bg-zinc-950 border border-zinc-700 focus:border-purple-500 rounded-xl px-3 py-2 text-sm text-white outline-none transition">
-          </div>
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">下方状态提示</label>
-            <input type="text" id="input-status-hint-text" value="无结果" placeholder="无结果 / 已找到唯一答案" 
-              class="w-full bg-zinc-950 border border-zinc-700 focus:border-purple-500 rounded-xl px-3 py-2 text-sm text-white outline-none transition">
-          </div>
+        <!-- 消息列表容器 -->
+        <div id="messages-editor-list" class="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+          <!-- 动态渲染每一条消息编辑项 -->
         </div>
+      </section>
 
-        <!-- 常用快捷灵感填词 -->
-        <div>
-          <div class="text-[11px] text-zinc-400 mb-1.5 flex items-center justify-between">
-            <span>快捷文案填入：</span>
-          </div>
-          <div class="flex flex-wrap gap-1.5">
-            <button class="quick-chip-btn text-xs px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition" data-text="1896" data-res="无结果">1896 (原图)</button>
-            <button class="quick-chip-btn text-xs px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition" data-text="宇宙中唯一的你" data-res="❤️ 匹配成功 100%">宇宙中唯一的你</button>
-            <button class="quick-chip-btn text-xs px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition" data-text="发财 & 暴富" data-res="好运正在极速送达中...">发财 & 暴富</button>
-            <button class="quick-chip-btn text-xs px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition" data-text="今日下班倒计时" data-res="打卡机已就绪">今日下班倒计时</button>
-            <button class="quick-chip-btn text-xs px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition" data-text="上岸顺利" data-res="录取通知书派发中">上岸顺利</button>
-          </div>
+      <!-- 模块 4：导出操作 -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex items-center justify-between">
+        <div class="text-xs text-slate-500">
+          💡 提示：右侧生成图内所有对话、名片与说明均自动按照真实繁体呈现，且支持超高清 2.5x 缩放无损导出。
         </div>
-      </div>
-
-      <!-- 发光霓虹光晕色系 -->
-      <div class="space-y-2 pt-3 border-t border-zinc-800">
-        <label class="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
-          <i data-lucide="palette" class="w-3.5 h-3.5 inline mr-1 text-purple-400"></i> 发光流光色彩
-        </label>
-        <div class="grid grid-cols-5 gap-2" id="glow-theme-selector">
-          <button data-glow="glow-purple-gold" class="glow-opt-btn active p-2 rounded-xl border-2 border-purple-500 bg-zinc-800 flex flex-col items-center gap-1.5 transition">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-amber-400 shadow"></span>
-            <span class="text-[11px] font-medium text-white">原图紫金</span>
-          </button>
-          <button data-glow="glow-cyan-pink" class="glow-opt-btn p-2 rounded-xl border border-zinc-700 bg-zinc-800/40 flex flex-col items-center gap-1.5 transition">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-pink-500 shadow"></span>
-            <span class="text-[11px] font-medium text-zinc-400">赛博蓝粉</span>
-          </button>
-          <button data-glow="glow-aurora-green" class="glow-opt-btn p-2 rounded-xl border border-zinc-700 bg-zinc-800/40 flex flex-col items-center gap-1.5 transition">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 shadow"></span>
-            <span class="text-[11px] font-medium text-zinc-400">极光葱绿</span>
-          </button>
-          <button data-glow="glow-sunset-gold" class="glow-opt-btn p-2 rounded-xl border border-zinc-700 bg-zinc-800/40 flex flex-col items-center gap-1.5 transition">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300 shadow"></span>
-            <span class="text-[11px] font-medium text-zinc-400">落日鎏金</span>
-          </button>
-          <button data-glow="glow-rainbow-ai" class="glow-opt-btn p-2 rounded-xl border border-zinc-700 bg-zinc-800/40 flex flex-col items-center gap-1.5 transition">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 via-indigo-500 to-emerald-400 shadow"></span>
-            <span class="text-[11px] font-medium text-zinc-400">幻彩AI</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 原生状态栏配置 -->
-      <div class="space-y-3 pt-3 border-t border-zinc-800">
-        <label class="text-xs font-semibold text-zinc-300 uppercase tracking-wider block flex items-center justify-between">
-          <span><i data-lucide="sliders" class="w-3.5 h-3.5 inline mr-1 text-purple-400"></i> 原生状态栏参数</span>
-          <button id="btn-sync-time" class="text-[11px] text-purple-400 hover:text-purple-300 transition flex items-center gap-1 font-normal">
-            <i data-lucide="clock" class="w-3 h-3"></i> 同步系统当前时间
-          </button>
-        </label>
-
-        <div class="grid grid-cols-2 gap-3 items-center">
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">显示时间</label>
-            <input type="text" id="input-bar-time" value="16:01" 
-              class="w-full bg-zinc-950 border border-zinc-700 focus:border-purple-500 rounded-xl px-3 py-2 text-sm text-white font-mono outline-none transition">
-          </div>
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="text-xs text-zinc-400">剩余电量</label>
-              <span id="label-battery" class="text-xs font-mono text-emerald-400 font-bold">23%</span>
-            </div>
-            <input type="range" id="input-bar-battery" min="1" max="100" value="23" 
-              class="w-full accent-purple-500 cursor-pointer h-2 bg-zinc-800 rounded-lg">
-          </div>
-        </div>
-
-        <!-- 状态栏小图标开关 -->
-        <div class="grid grid-cols-3 gap-2 text-xs pt-1">
-          <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-950/70 border border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition">
-            <input type="checkbox" id="toggle-opt-vpn" checked class="accent-purple-500 rounded">
-            <span class="text-zinc-300">VPN 标识</span>
-          </label>
-          <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-950/70 border border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition">
-            <input type="checkbox" id="toggle-opt-5g" checked class="accent-purple-500 rounded">
-            <span class="text-zinc-300">双卡 5G</span>
-          </label>
-          <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-950/70 border border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition">
-            <input type="checkbox" id="toggle-opt-alarm" checked class="accent-purple-500 rounded">
-            <span class="text-zinc-300">闹钟图标</span>
-          </label>
-        </div>
-
-        <div class="flex items-center justify-between text-xs pt-1 px-1">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="toggle-opt-cursor" checked class="accent-purple-500 rounded">
-            <span class="text-zinc-300">显示幽蓝输入光标</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="toggle-opt-watermark" checked class="accent-purple-500 rounded">
-            <span class="text-zinc-300">原图背景流光虚影</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 生成与导出功能区 -->
-      <div class="pt-4 border-t border-zinc-800 space-y-2.5">
-        <button id="btn-export-png" class="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span>一键生成并保存高清原图 (PNG)</span>
+        <button onclick="exportImage()" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl shadow-lg transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          下载高清 PNG 截图
         </button>
-
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btn-copy-img" class="py-2.5 px-3 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition flex items-center justify-center gap-1.5">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>复制图片到剪贴板</span>
-          </button>
-          <button id="btn-mobile-preview" class="py-2.5 px-3 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition flex items-center justify-center gap-1.5">
-            <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
-            <span>手机端长按保存</span>
-          </button>
-        </div>
       </div>
 
     </div>
 
-    <!-- 右侧渲染展示舞台 (7列) - 绝对保证标准正向竖屏 -->
-    <div class="lg:col-span-7 flex flex-col items-center justify-center order-1 lg:order-2">
-      
-      <!-- 预览状态提示条 -->
-      <div class="w-full max-w-[420px] flex items-center justify-between mb-3 px-2 text-xs text-zinc-400">
-        <span class="flex items-center gap-1.5 font-medium">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>标准正向竖屏（所见即所得）</span>
-        </span>
-        <span class="text-zinc-500">点击搜索框可直接打字</span>
-      </div>
+    <!-- 右侧：手机屏幕实时预览区 (内容全部为地道繁体中文) -->
+    <div class="lg:col-span-5 sticky top-20 flex flex-col items-center">
+      <div class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">实时渲染预览 (1:1 原生效果)</div>
 
-      <!-- 截图捕获主容器 (正向垂直竖屏，绝不倾斜旋转) -->
-      <div class="w-full flex items-center justify-center py-2 sm:py-4">
+      <!-- 手机外框容器 -->
+      <div id="capture-container" class="relative transition-all duration-300">
         
-        <!-- html2canvas 捕捉的目标容器 -->
-        <div id="capture-frame-node" class="transition-all duration-300 flex items-center justify-center bg-transparent">
+        <!-- 拟真机身外壳 -->
+        <div id="phone-shell" class="w-[375px] rounded-[44px] p-[10px] bg-slate-900 shadow-2xl ring-1 ring-slate-800/80 relative">
           
-          <!-- 手机实体容器：标准垂直方向 w-[360px] sm:w-[380px] -->
-          <div id="phone-chassis" class="w-[360px] sm:w-[380px] bg-black rounded-[42px] phone-realistic-frame p-2.5 border-[4px] border-[#22242a] relative select-none transition-all duration-300 overflow-hidden">
+          <!-- 屏幕真实显示区域 -->
+          <div id="screen-display" class="w-full bg-[#F4F5F9] rounded-[36px] overflow-hidden flex flex-col font-phone text-slate-900 min-h-[750px] relative">
             
-            <!-- 顶部微缝金属听筒 -->
-            <div id="speaker-slit" class="absolute top-[5px] left-1/2 -translate-x-1/2 w-14 h-1 bg-[#2b2d33] rounded-full z-30 pointer-events-none"></div>
+            <!-- 状态栏 -->
+            <div class="h-11 px-6 pt-2 flex items-center justify-between text-xs font-medium z-20 select-none">
+              <!-- 左侧：时间与应用徽标 -->
+              <div class="flex items-center space-x-1.5">
+                <span id="preview-time" class="font-semibold text-[13px] tracking-tight">16:04</span>
+                <span id="preview-shield" class="inline-flex">
+                  <svg class="w-3.5 h-3.5 text-slate-700 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.54-3.14 8.79-7 9.92-3.86-1.13-7-5.38-7-9.92V6.3l7-3.12z"/></svg>
+                </span>
+                <span id="preview-alipay" class="inline-flex">
+                  <div class="w-3.5 h-3.5 rounded bg-blue-500 text-[9px] text-white flex items-center justify-center font-bold">支</div>
+                </span>
+              </div>
 
-            <!-- 手机内屏纯黑 OLED 显示区 (9:19.5 标准长宽比，标准垂直朝向) -->
-            <div id="screen-display-area" class="w-full bg-[#000000] rounded-[34px] overflow-hidden relative min-h-[660px] flex flex-col justify-between">
-              
-              <!-- 屏幕玻璃防眩光反光层 -->
-              <div class="absolute inset-0 screen-glass-glare pointer-events-none z-20"></div>
+              <!-- 顶部前置打孔镜头 -->
+              <div id="preview-camera" class="w-4 h-4 rounded-full bg-black/90 ring-1 ring-slate-700/50 -mt-1"></div>
 
-              <!-- 1. 顶部状态栏 (标准横向平铺，正向手机顶部) -->
-              <div class="relative z-10 w-full pt-3 px-5 pb-2 flex items-center justify-between text-white text-[11px] font-sans">
-                
-                <!-- 状态栏左侧：时间、盾牌、定位、通知 -->
-                <div class="flex items-center space-x-1.5">
-                  <span id="screen-time-text" class="font-semibold text-xs text-zinc-100 tracking-tight" contenteditable="true" spellcheck="false">16:01</span>
-                  
-                  <!-- 盾牌安全图标 (还原原图) -->
-                  <svg class="w-3 h-3 text-zinc-300 opacity-90" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.54-3.1 8.78-7 9.87-3.9-1.09-7-5.33-7-9.87V6.3l7-3.12z"/>
-                  </svg>
-
-                  <!-- 消息通知纸飞机 (还原原图) -->
-                  <svg class="w-3 h-3 text-zinc-300 opacity-80" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                  </svg>
-
-                  <!-- 蓝色支付/安全角标 (还原原图) -->
-                  <span class="w-3.5 h-3.5 rounded-[3px] bg-[#1677ff] text-[8px] font-bold flex items-center justify-center text-white scale-90">支</span>
-                </div>
-
-                <!-- 居中打孔前置摄像头 (Punch-hole) -->
-                <div class="w-3.5 h-3.5 rounded-full bg-[#050608] border border-[#1a1b1f] flex items-center justify-center shadow-inner shrink-0">
-                  <div class="w-1.5 h-1.5 rounded-full bg-[#0e1628]/95"></div>
-                </div>
-
-                <!-- 状态栏右侧：闹钟、静音、VPN、双5G、Wi-Fi、电量 -->
-                <div class="flex items-center space-x-1.5">
-                  <!-- 闹钟图标 -->
-                  <svg id="screen-icon-alarm" class="w-3 h-3 text-zinc-300 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <circle cx="12" cy="13" r="8"></circle>
-                    <path d="M12 9v4l2 2"></path>
-                    <path d="M5 3 2 6"></path>
-                    <path d="m22 6-3-3"></path>
-                  </svg>
-
-                  <!-- 振动图标 -->
-                  <svg class="w-3 h-3 text-zinc-300 inline-block" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.39 6.42h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42zM16.5 12c0-2.48-1.51-4.5-3.5-5.5v11c1.99-1 3.5-3.02 3.5-5.5z"/>
-                  </svg>
-
-                  <!-- VPN 标识 -->
-                  <span id="screen-icon-vpn" class="text-[8px] px-1 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-bold leading-none">VPN</span>
-
-                  <!-- 双 5G 信号 (原图上下双卡 5G 样式) -->
-                  <div id="screen-icon-5g" class="flex flex-col items-center justify-center scale-90 leading-tight">
-                    <div class="flex items-center gap-0.5">
-                      <span class="text-[7px] font-bold text-zinc-300">5G</span>
-                      <div class="flex items-end gap-[1px] h-2">
-                        <span class="w-[1.5px] h-1 bg-white"></span>
-                        <span class="w-[1.5px] h-1.5 bg-white"></span>
-                        <span class="w-[1.5px] h-2 bg-white"></span>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-0.5 -mt-0.5">
-                      <span class="text-[7px] font-bold text-zinc-400">5G</span>
-                      <div class="flex items-end gap-[1px] h-1.5">
-                        <span class="w-[1.5px] h-0.5 bg-zinc-300"></span>
-                        <span class="w-[1.5px] h-1 bg-zinc-300"></span>
-                        <span class="w-[1.5px] h-1.5 bg-zinc-300"></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Wi-Fi 满格 -->
-                  <svg class="w-3.5 h-3.5 text-zinc-100 inline-block" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4zm0 3.5c3.78 0 7.22 1.48 9.77 3.92L12 19.34 2.23 11.42A13.39 13.39 0 0 1 12 7.5z"/>
-                  </svg>
-
-                  <!-- 原生电量胶囊 (内置 23 数字) -->
-                  <div class="relative w-6 h-3.5 rounded-[4px] border border-zinc-400/90 p-[1px] flex items-center justify-center">
-                    <div id="screen-battery-bar" class="absolute left-[1px] top-[1px] bottom-[1px] bg-zinc-300 rounded-[2px]" style="width: 23%;"></div>
-                    <span id="screen-battery-num" class="relative z-10 text-[8px] font-mono font-bold text-white scale-90">23</span>
+              <!-- 右侧：信号、VPN、Wi-Fi与电量 -->
+              <div class="flex items-center space-x-1.5 text-[11px]">
+                <span id="preview-vpn" class="px-1 py-[0.5px] rounded text-[8px] font-bold bg-slate-800 text-white">VPN</span>
+                <span id="preview-network" class="flex items-center font-semibold text-[10px]">5G</span>
+                <!-- Wi-Fi 矢量图标 -->
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4zm0 3.32c3.78 0 7.22 1.48 9.77 3.9L12 19.09 2.23 11.22C4.78 8.8 8.22 7.32 12 7.32z"/></svg>
+                <!-- 电池胶囊 -->
+                <div class="flex items-center space-x-0.5">
+                  <span id="preview-battery-num" class="text-[10px] font-bold">86</span>
+                  <div class="w-5 h-2.5 border border-slate-700 rounded-sm p-[1px] flex items-center">
+                    <div id="preview-battery-bar" class="h-full bg-slate-800 rounded-2xs" style="width: 86%;"></div>
                   </div>
                 </div>
-
               </div>
-
-              <!-- 2. 发光搜索框核心区域 -->
-              <div class="relative z-10 px-4 pt-3 pb-2">
-                <div class="flex items-center gap-2.5">
-                  
-                  <!-- 发光渐变胶囊外壳 -->
-                  <div id="glow-capsule-wrapper" class="glow-purple-gold flex-1 p-[2.5px] rounded-full transition-all duration-300">
-                    
-                    <!-- 胶囊内黑底与文字内容区 -->
-                    <div class="bg-[#0b0c10] rounded-full px-3.5 py-2.5 flex items-center justify-between text-white shadow-inner">
-                      
-                      <!-- 搜索图标与可输入文字区 -->
-                      <div class="flex items-center space-x-2 flex-1 overflow-hidden">
-                        <!-- Q / 放大镜搜索图标 (完全还原原图) -->
-                        <div class="text-zinc-200 flex items-center justify-center shrink-0">
-                          <svg class="w-4 h-4 stroke-[2.8]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                          </svg>
-                        </div>
-
-                        <!-- 搜索文字（支持点击直接输入） -->
-                        <div class="flex items-center text-sm font-medium tracking-wide flex-1 overflow-hidden">
-                          <span id="screen-display-query" class="text-white truncate outline-none" contenteditable="true" spellcheck="false">1896</span>
-                          <!-- 幽蓝输入光标 (原图蓝色竖光标) -->
-                          <span id="screen-cyan-cursor" class="w-[2px] h-4 bg-[#38bdf8] ml-0.5 rounded-full animate-cursor-blink inline-block shadow-[0_0_8px_#38bdf8]"></span>
-                        </div>
-                      </div>
-
-                      <!-- 框内右侧小圆圈叉叉清空按钮 -->
-                      <button id="screen-btn-quick-clear" class="w-4 h-4 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center text-[10px] ml-1 shrink-0 transition" title="清空内容">
-                        ✕
-                      </button>
-                    </div>
-
-                  </div>
-
-                  <!-- 搜索框外侧“取消”按钮 (原图特征) -->
-                  <button id="screen-display-cancel" class="text-xs text-zinc-300 hover:text-white font-medium shrink-0 px-1 py-1 outline-none" contenteditable="true" spellcheck="false">
-                    取消
-                  </button>
-                </div>
-              </div>
-
-              <!-- 3. 中部无结果提示语与原图背景虚影 -->
-              <div class="relative z-10 flex-1 flex flex-col items-center justify-center p-8 text-center">
-                
-                <!-- 原图背景上的丝带/螺旋流光虚影水印 -->
-                <div id="screen-watermark-wrap" class="relative mb-3 opacity-25 transition-opacity">
-                  <svg class="w-24 h-24 text-zinc-500" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M50,15 C30.67,15 15,30.67 15,50 C15,69.33 30.67,85 50,85 C69.33,85 85,69.33 85,50 C85,38 78,28 68,22 C67,21.5 65.5,22.5 66,23.8 C71.5,37.5 62.5,52 48.5,53.5 C36.2,54.8 26.5,44.5 28,32.2 C29.2,21.8 38.5,15 50,15 Z" />
-                  </svg>
-                </div>
-
-                <!-- “无结果”文本（支持直接点击修改） -->
-                <div id="screen-display-hint" class="text-xs tracking-wider text-zinc-400 font-normal outline-none" contenteditable="true" spellcheck="false">
-                  无结果
-                </div>
-              </div>
-
-              <!-- 4. 底部系统手势指示条 -->
-              <div class="relative z-10 pb-2.5 flex justify-center">
-                <div class="w-32 h-1 bg-zinc-700/60 rounded-full"></div>
-              </div>
-
             </div>
+
+            <!-- Laya 聊天顶部导航栏 (繁体) -->
+            <div class="h-12 px-4 border-b border-slate-200/80 bg-white/90 backdrop-blur flex items-center justify-between z-10">
+              <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                <div class="flex items-center space-x-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span id="preview-nav-name" class="font-bold text-sm tracking-tight text-slate-800">柔柔</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-3 text-slate-600">
+                <!-- 语音呼叫按钮 -->
+                <svg class="w-5 h-5 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                <!-- 更多选项 -->
+                <svg class="w-5 h-5 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+              </div>
+            </div>
+
+            <!-- 顶部对方个人名片卡片 (繁体) -->
+            <div class="p-3 mx-3 mt-3 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img id="preview-card-avatar" src="" class="w-12 h-12 rounded-full object-cover border border-slate-100" alt="avatar">
+                  <span id="preview-card-online" class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                </div>
+                <div class="space-y-0.5">
+                  <div class="flex items-center space-x-1.5">
+                    <span id="preview-card-name" class="font-bold text-sm text-slate-800">柔柔</span>
+                    <span class="px-1.5 py-[1px] bg-pink-100 text-pink-600 rounded text-[10px] font-semibold">♀ 23</span>
+                    <span class="px-1 py-[1px] bg-blue-50 text-blue-500 rounded text-[9px] font-bold">V 認證</span>
+                  </div>
+                  <div id="preview-card-details" class="text-[11px] text-slate-400">
+                    23歲 · 165cm · 台北市 · 雙子座
+                  </div>
+                  <div class="text-[10px] text-blue-500 font-medium flex items-center gap-1">
+                    <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                    <span id="preview-card-dist">距離你約 2.1 km</span>
+                  </div>
+                </div>
+              </div>
+              <button class="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold rounded-full shadow-sm">
+                + 關注
+              </button>
+            </div>
+
+            <!-- 对话气泡与消息滚动区 (繁体内容) -->
+            <div id="preview-messages-container" class="flex-1 p-3.5 space-y-3.5 overflow-hidden">
+              <!-- 动态消息列表 -->
+            </div>
+
+            <!-- Laya 底部交互输入栏 (繁体) -->
+            <div class="mt-auto bg-white/95 border-t border-slate-200/70 p-2.5 px-3 flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
+              </div>
+              <div class="flex-1 bg-slate-100 rounded-full px-3.5 py-1.5 text-xs text-slate-400 select-none flex items-center justify-between">
+                <span>發送一條甜蜜的訊息吧...</span>
+                <span class="text-slate-300">😊</span>
+              </div>
+              <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                <svg class="w-4 h-4 transform rotate-45 -mt-0.5 -ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              </div>
+            </div>
+
+            <!-- 底部返回主屏手势横条 -->
+            <div class="w-32 h-1 bg-slate-300 rounded-full mx-auto my-1.5"></div>
+
           </div>
-
         </div>
-
       </div>
-
-      <!-- 底部格式提示 -->
-      <div class="mt-3 text-center text-xs text-zinc-500">
-        已设为标准垂直朝向 · 点击“下载高清截图”即可获取无黑边原画截图
-      </div>
-
     </div>
 
   </main>
 
-  <!-- 手机端图片长按保存弹窗 -->
-  <div id="export-preview-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-4 flex flex-col items-center text-center shadow-2xl relative">
-      <button id="btn-close-modal-x" class="absolute top-3 right-3 text-zinc-400 hover:text-white p-1 rounded-lg bg-zinc-800/80">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
-
-      <div class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2">
-        <i data-lucide="check" class="w-5 h-5"></i>
-      </div>
-      <h3 class="text-base font-bold text-white">截图渲染完成</h3>
-      <p class="text-xs text-zinc-400 mt-1 mb-3">长按下方图片可直接存储到手机相册</p>
-
-      <div class="w-full max-h-[62vh] overflow-auto rounded-xl border border-zinc-800 bg-zinc-950 p-2 flex items-center justify-center">
-        <img id="modal-img-element" src="" alt="截图预览" class="max-w-full h-auto rounded-lg shadow-md">
-      </div>
-
-      <div class="w-full flex gap-2 mt-4">
-        <a id="modal-btn-download-link" href="#" download="glow-search-vertical.png" class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i> 直接下载
-        </a>
-        <button id="btn-close-modal-bottom" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition">
-          关闭
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 轻量通知 Toast 容器 -->
-  <div id="app-toast-shelf" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
-
   <script>
-    // 初始化矢量图标
-    lucide.createIcons();
+    // 预设高颜值头像 (安全纯色/高清SVG数据，杜绝外部图片跨域跨网加载失败)
+    const PRESET_AVATARS = {
+      target: [
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23fed7aa'/><circle cx='50' cy='42' r='22' fill='%23fb7185'/><path d='M25 88c0-18 12-26 25-26s25 8 25 26' fill='%23f43f5e'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/><path d='M46 50q4 3 8 0' stroke='%23fff' stroke-width='2' fill='none'/></svg>",
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23fbcfe8'/><circle cx='50' cy='42' r='22' fill='%23c084fc'/><path d='M22 88c0-18 14-26 28-26s28 8 28 26' fill='%23a855f7'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/><path d='M46 51q4 2.5 8 0' stroke='%23fff' stroke-width='2' fill='none'/></svg>",
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23fef08a'/><circle cx='50' cy='42' r='22' fill='%23f472b6'/><path d='M24 88c0-18 13-26 26-26s26 8 26 26' fill='%23db2777'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/><circle cx='50' cy='48' r='3' fill='%23f43f5e'/></svg>",
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23bae6fd'/><circle cx='50' cy='42' r='22' fill='%2338bdf8'/><path d='M22 88c0-18 14-26 28-26s28 8 28 26' fill='%230284c7'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/><path d='M45 49q5 2 10 0' stroke='%23fff' stroke-width='2' fill='none'/></svg>"
+      ],
+      my: [
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23e2e8f0'/><circle cx='50' cy='42' r='22' fill='%2364748b'/><path d='M22 88c0-18 14-26 28-26s28 8 28 26' fill='%23334155'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/></svg>",
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ddd6fe'/><circle cx='50' cy='42' r='22' fill='%238b5cf6'/><path d='M22 88c0-18 14-26 28-26s28 8 28 26' fill='%236d28d9'/><circle cx='43' cy='40' r='2.5' fill='%23fff'/><circle cx='57' cy='40' r='2.5' fill='%23fff'/></svg>"
+      ]
+    };
 
-    // DOM 获取
-    const inputQueryText = document.getElementById('input-query-text');
-    const screenDisplayQuery = document.getElementById('screen-display-query');
-    const btnClearQuery = document.getElementById('btn-clear-query');
-    const screenBtnQuickClear = document.getElementById('screen-btn-quick-clear');
+    // 应用数据状态
+    let appState = {
+      targetAvatar: PRESET_AVATARS.target[0],
+      myAvatar: PRESET_AVATARS.my[0],
+      messages: [
+        { type: "system", content: "Laya 平台提倡真誠交友，請遵守平台《交友守則》" },
+        { type: "other", content: "哈囉～看到你也喜歡看展覽！" },
+        { type: "me", content: "嗨！對呀，週末剛好去松菸逛逛" },
+        { type: "other", content: "太巧了吧！我也很想去那檔新展覽，改天有空要一起喝杯咖啡聊聊嗎？☕" },
+        { type: "me", content: "好啊！我知道附近有一家很棒的肉桂捲，下週六下午如何？" },
+        { type: "other", content: "太期待了！一言為定囉 ✨" }
+      ]
+    };
 
-    const inputCancelBtnText = document.getElementById('input-cancel-btn-text');
-    const screenDisplayCancel = document.getElementById('screen-display-cancel');
-    const inputStatusHintText = document.getElementById('input-status-hint-text');
-    const screenDisplayHint = document.getElementById('screen-display-hint');
+    // 初始化运行
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("target-avatar-preview").src = appState.targetAvatar;
+      document.getElementById("my-avatar-preview").src = appState.myAvatar;
+      renderEditorList();
+      render();
+    });
 
-    const inputBarTime = document.getElementById('input-bar-time');
-    const screenTimeText = document.getElementById('screen-time-text');
-    const btnSyncTime = document.getElementById('btn-sync-time');
-
-    const inputBarBattery = document.getElementById('input-bar-battery');
-    const labelBattery = document.getElementById('label-battery');
-    const screenBatteryBar = document.getElementById('screen-battery-bar');
-    const screenBatteryNum = document.getElementById('screen-battery-num');
-
-    const toggleOptVpn = document.getElementById('toggle-opt-vpn');
-    const screenIconVpn = document.getElementById('screen-icon-vpn');
-    const toggleOpt5g = document.getElementById('toggle-opt-5g');
-    const screenIcon5g = document.getElementById('screen-icon-5g');
-    const toggleOptAlarm = document.getElementById('toggle-opt-alarm');
-    const screenIconAlarm = document.getElementById('screen-icon-alarm');
-
-    const toggleOptCursor = document.getElementById('toggle-opt-cursor');
-    const screenCyanCursor = document.getElementById('screen-cyan-cursor');
-    const toggleOptWatermark = document.getElementById('toggle-opt-watermark');
-    const screenWatermarkWrap = document.getElementById('screen-watermark-wrap');
-
-    const glowCapsuleWrapper = document.getElementById('glow-capsule-wrapper');
-    const glowOptBtns = document.querySelectorAll('.glow-opt-btn');
-    const quickChipBtns = document.querySelectorAll('.quick-chip-btn');
-    const btnQuickReset = document.getElementById('btn-quick-reset');
-
-    const modePureScreen = document.getElementById('mode-pure-screen');
-    const modePhoneFrame = document.getElementById('mode-phone-frame');
-    const captureFrameNode = document.getElementById('capture-frame-node');
-    const phoneChassis = document.getElementById('phone-chassis');
-    const speakerSlit = document.getElementById('speaker-slit');
-    const screenDisplayArea = document.getElementById('screen-display-area');
-
-    const btnExportPng = document.getElementById('btn-export-png');
-    const btnHeaderExport = document.getElementById('btn-header-export');
-    const btnCopyImg = document.getElementById('btn-copy-img');
-    const btnMobilePreview = document.getElementById('btn-mobile-preview');
-
-    const exportPreviewModal = document.getElementById('export-preview-modal');
-    const modalImgElement = document.getElementById('modal-img-element');
-    const modalBtnDownloadLink = document.getElementById('modal-btn-download-link');
-    const btnCloseModalX = document.getElementById('btn-close-modal-x');
-    const btnCloseModalBottom = document.getElementById('btn-close-modal-bottom');
-
-    let currentMode = 'pure'; // 'pure' 纯净屏幕直出模式 | 'frame' 真机边框模式
-    let currentGlowClass = 'glow-purple-gold';
-
-    // 优雅通知提示
-    function notify(msg, type = 'info') {
-      const toast = document.createElement('div');
-      toast.className = `px-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-2xl transition-all duration-300 transform translate-y-3 opacity-0 flex items-center gap-2 ${
-        type === 'error' ? 'bg-rose-950 border border-rose-500 text-rose-200' : 'bg-zinc-800 border border-purple-500/50 text-purple-200'
-      }`;
-      toast.innerHTML = `<span>✨</span><span>${msg}</span>`;
-      
-      const shelf = document.getElementById('app-toast-shelf');
-      shelf.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-3', 'opacity-0');
-      });
-
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 260);
-      }, 2300);
+    // 头像预设切换
+    function selectTargetPreset(idx) {
+      appState.targetAvatar = PRESET_AVATARS.target[idx];
+      document.getElementById("target-avatar-preview").src = appState.targetAvatar;
+      render();
+    }
+    function selectMyPreset(idx) {
+      appState.myAvatar = PRESET_AVATARS.my[idx];
+      document.getElementById("my-avatar-preview").src = appState.myAvatar;
+      render();
     }
 
-    // 双向同步搜索框文本
-    inputQueryText.addEventListener('input', (e) => {
-      screenDisplayQuery.textContent = e.target.value;
-    });
-    screenDisplayQuery.addEventListener('input', (e) => {
-      inputQueryText.value = e.target.textContent.trim();
-    });
-
-    // 清空操作
-    function executeClearQuery() {
-      inputQueryText.value = '';
-      screenDisplayQuery.textContent = '';
-      notify('已清空搜索内容');
-    }
-    btnClearQuery.addEventListener('click', executeClearQuery);
-    screenBtnQuickClear.addEventListener('click', executeClearQuery);
-
-    // 取消按钮文本双向同步
-    inputCancelBtnText.addEventListener('input', (e) => {
-      screenDisplayCancel.textContent = e.target.value;
-      screenDisplayCancel.style.display = e.target.value ? 'block' : 'none';
-    });
-    screenDisplayCancel.addEventListener('input', (e) => {
-      inputCancelBtnText.value = e.target.textContent;
-    });
-
-    // 状态提示文本双向同步
-    inputStatusHintText.addEventListener('input', (e) => {
-      screenDisplayHint.textContent = e.target.value;
-    });
-    screenDisplayHint.addEventListener('input', (e) => {
-      inputStatusHintText.value = e.target.textContent;
-    });
-
-    // 状态栏时间同步
-    inputBarTime.addEventListener('input', (e) => {
-      screenTimeText.textContent = e.target.value;
-    });
-    screenTimeText.addEventListener('input', (e) => {
-      inputBarTime.value = e.target.textContent;
-    });
-
-    // 同步真实当前时间
-    btnSyncTime.addEventListener('click', () => {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      const timeStr = `${hh}:${mm}`;
-      inputBarTime.value = timeStr;
-      screenTimeText.textContent = timeStr;
-      notify(`已同步时间为 ${timeStr}`);
-    });
-
-    // 电量滑块
-    inputBarBattery.addEventListener('input', (e) => {
-      const val = e.target.value;
-      labelBattery.textContent = `${val}%`;
-      screenBatteryNum.textContent = val;
-      screenBatteryBar.style.width = `${val}%`;
-      if (val <= 20) {
-        screenBatteryBar.classList.remove('bg-zinc-300');
-        screenBatteryBar.classList.add('bg-rose-500');
-      } else {
-        screenBatteryBar.classList.remove('bg-rose-500');
-        screenBatteryBar.classList.add('bg-zinc-300');
-      }
-    });
-
-    // 状态栏小图标开关
-    toggleOptVpn.addEventListener('change', (e) => {
-      screenIconVpn.style.display = e.target.checked ? 'inline-block' : 'none';
-    });
-    toggleOpt5g.addEventListener('change', (e) => {
-      screenIcon5g.style.display = e.target.checked ? 'flex' : 'none';
-    });
-    toggleOptAlarm.addEventListener('change', (e) => {
-      screenIconAlarm.style.display = e.target.checked ? 'inline-block' : 'none';
-    });
-
-    // 光标与水印虚影开关
-    toggleOptCursor.addEventListener('change', (e) => {
-      screenCyanCursor.style.display = e.target.checked ? 'inline-block' : 'none';
-    });
-    toggleOptWatermark.addEventListener('change', (e) => {
-      screenWatermarkWrap.style.display = e.target.checked ? 'block' : 'none';
-    });
-
-    // 快捷文案芯片点击
-    quickChipBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const text = btn.getAttribute('data-text');
-        const res = btn.getAttribute('data-res');
-        inputQueryText.value = text;
-        screenDisplayQuery.textContent = text;
-        if (res) {
-          inputStatusHintText.value = res;
-          screenDisplayHint.textContent = res;
+    // 头像本地上传 (Base64 处理)
+    function uploadAvatar(e, role) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        if (role === 'target') {
+          appState.targetAvatar = evt.target.result;
+          document.getElementById("target-avatar-preview").src = appState.targetAvatar;
+        } else {
+          appState.myAvatar = evt.target.result;
+          document.getElementById("my-avatar-preview").src = appState.myAvatar;
         }
-        notify(`已应用文案：“${text}”`);
-      });
-    });
-
-    // 霓虹发光色系切换
-    const glowClassList = ['glow-purple-gold', 'glow-cyan-pink', 'glow-aurora-green', 'glow-sunset-gold', 'glow-rainbow-ai'];
-    glowOptBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const selectedGlow = btn.getAttribute('data-glow');
-        currentGlowClass = selectedGlow;
-
-        glowOptBtns.forEach(b => {
-          b.classList.remove('border-purple-500', 'border-2', 'bg-zinc-800');
-          b.classList.add('border-zinc-700', 'border', 'bg-zinc-800/40');
-        });
-        btn.classList.add('border-purple-500', 'border-2', 'bg-zinc-800');
-        btn.classList.remove('border-zinc-700', 'border', 'bg-zinc-800/40');
-
-        glowClassList.forEach(cls => glowCapsuleWrapper.classList.remove(cls));
-        glowCapsuleWrapper.classList.add(selectedGlow);
-      });
-    });
-
-    // 截图模式切换逻辑：纯净直出截屏 vs 真机模型外壳
-    function applyScreenshotMode(mode) {
-      currentMode = mode;
-      if (mode === 'pure') {
-        // 纯净屏幕直出模式：隐藏外机身、外边框与听筒，直接截取 9:19.5 的真实内屏
-        modePureScreen.classList.add('border-purple-500', 'border-2', 'bg-zinc-800/90');
-        modePureScreen.classList.remove('border-zinc-700/60', 'border', 'bg-zinc-800/40');
-        modePhoneFrame.classList.remove('border-purple-500', 'border-2', 'bg-zinc-800/90');
-        modePhoneFrame.classList.add('border-zinc-700/60', 'border', 'bg-zinc-800/40');
-
-        phoneChassis.className = 'w-[360px] sm:w-[380px] bg-transparent p-0 border-0 rounded-none relative select-none transition-all duration-300';
-        speakerSlit.style.display = 'none';
-        screenDisplayArea.className = 'w-full bg-[#000000] rounded-none overflow-hidden relative min-h-[660px] flex flex-col justify-between';
-        captureFrameNode.className = 'transition-all duration-300 flex items-center justify-center bg-black';
-        notify('已切换为：纯净屏幕直出截屏模式');
-      } else {
-        // 真机质感模型模式
-        modePhoneFrame.classList.add('border-purple-500', 'border-2', 'bg-zinc-800/90');
-        modePhoneFrame.classList.remove('border-zinc-700/60', 'border', 'bg-zinc-800/40');
-        modePureScreen.classList.remove('border-purple-500', 'border-2', 'bg-zinc-800/90');
-        modePureScreen.classList.add('border-zinc-700/60', 'border', 'bg-zinc-800/40');
-
-        phoneChassis.className = 'w-[360px] sm:w-[380px] bg-black rounded-[42px] phone-realistic-frame p-2.5 border-[4px] border-[#22242a] relative select-none transition-all duration-300 overflow-hidden';
-        speakerSlit.style.display = 'block';
-        screenDisplayArea.className = 'w-full bg-[#000000] rounded-[34px] overflow-hidden relative min-h-[660px] flex flex-col justify-between';
-        captureFrameNode.className = 'transition-all duration-300 flex items-center justify-center bg-transparent';
-        notify('已切换为：真机模型质感模式');
-      }
-    }
-
-    modePureScreen.addEventListener('click', () => applyScreenshotMode('pure'));
-    modePhoneFrame.addEventListener('click', () => applyScreenshotMode('frame'));
-    // 默认启用纯净直出屏幕截屏模式，更符合“截图”的需求
-    applyScreenshotMode('pure');
-
-    // 重置按钮
-    btnQuickReset.addEventListener('click', () => {
-      inputQueryText.value = '1896';
-      screenDisplayQuery.textContent = '1896';
-      inputCancelBtnText.value = '取消';
-      screenDisplayCancel.textContent = '取消';
-      screenDisplayCancel.style.display = 'block';
-      inputStatusHintText.value = '无结果';
-      screenDisplayHint.textContent = '无结果';
-      inputBarTime.value = '16:01';
-      screenTimeText.textContent = '16:01';
-      inputBarBattery.value = 23;
-      labelBattery.textContent = '23%';
-      screenBatteryNum.textContent = '23';
-      screenBatteryBar.style.width = '23%';
-      document.querySelector('[data-glow="glow-purple-gold"]').click();
-      notify('已恢复为原图默认设定');
-    });
-
-    // 高清图片截取函数
-    async function captureRenderedCanvas() {
-      // 截图时确保幽蓝光标处于完全显示状态
-      if (toggleOptCursor.checked) {
-        screenCyanCursor.classList.remove('animate-cursor-blink');
-        screenCyanCursor.style.opacity = '1';
-      }
-
-      // 决定截图截取的 DOM 节点
-      const targetElement = currentMode === 'pure' ? screenDisplayArea : captureFrameNode;
-
-      const options = {
-        backgroundColor: currentMode === 'pure' ? '#000000' : null,
-        scale: 2.5, // 2.5倍无损Retina采样率
-        useCORS: true,
-        allowTaint: true,
-        logging: false
+        render();
       };
-
-      try {
-        const canvas = await html2canvas(targetElement, options);
-        if (toggleOptCursor.checked) {
-          screenCyanCursor.classList.add('animate-cursor-blink');
-        }
-        return canvas;
-      } catch (err) {
-        console.error('Canvas capture failed:', err);
-        notify('截图生成异常，请重试', 'error');
-        if (toggleOptCursor.checked) {
-          screenCyanCursor.classList.add('animate-cursor-blink');
-        }
-        return null;
-      }
+      reader.readAsDataURL(file);
     }
 
-    // 1. 下载 PNG
-    async function triggerExportPng() {
-      notify('正在生成高清原画截图中...');
-      btnExportPng.disabled = true;
-      btnExportPng.classList.add('opacity-70');
-
-      const canvas = await captureRenderedCanvas();
-      if (canvas) {
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = `glow-search-${inputQueryText.value.trim() || 'screenshot'}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        notify('高清截图已成功下载！');
-      }
-
-      btnExportPng.disabled = false;
-      btnExportPng.classList.remove('opacity-70');
+    // 添加消息
+    function addMessage(sender) {
+      appState.messages.push({
+        type: sender,
+        content: sender === 'me' ? '這是一條新發送的信息' : '這是一條對方發來的消息'
+      });
+      renderEditorList();
+      render();
     }
-    btnExportPng.addEventListener('click', triggerExportPng);
-    btnHeaderExport.addEventListener('click', triggerExportPng);
 
-    // 2. 复制到剪贴板
-    btnCopyImg.addEventListener('click', async () => {
-      notify('正在转换图片数据...');
-      const canvas = await captureRenderedCanvas();
-      if (!canvas) return;
+    function addSystemNotice() {
+      appState.messages.push({
+        type: 'system',
+        content: '昨天 21:30'
+      });
+      renderEditorList();
+      render();
+    }
 
-      if (navigator.clipboard && window.ClipboardItem) {
-        try {
-          canvas.toBlob(async (blob) => {
-            if (!blob) {
-              notify('图片生成错误', 'error');
-              return;
-            }
-            await navigator.clipboard.write([
-              new ClipboardItem({ 'image/png': blob })
-            ]);
-            notify('已成功复制图片到剪贴板！可以直接粘贴了');
-          }, 'image/png');
-        } catch (e) {
-          openMobilePreviewModal(canvas);
-          notify('已弹出图片，可长按保存或复制');
-        }
-      } else {
-        openMobilePreviewModal(canvas);
-        notify('已弹出图片，可长按保存');
-      }
-    });
+    // 删除消息
+    function removeMessage(index) {
+      appState.messages.splice(index, 1);
+      renderEditorList();
+      render();
+    }
 
-    // 3. 手机端长按保存弹窗
-    function openMobilePreviewModal(canvas) {
-      const dataUrl = canvas.toDataURL('image/png');
-      modalImgElement.src = dataUrl;
-      modalBtnDownloadLink.href = dataUrl;
-      modalBtnDownloadLink.download = `glow-search-${inputQueryText.value.trim() || 'shot'}.png`;
+    // 更新消息文字
+    function updateMessageContent(index, val) {
+      appState.messages[index].content = val;
+      render();
+    }
 
-      exportPreviewModal.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        exportPreviewModal.classList.remove('opacity-0');
+    // 渲染左侧控制面板中的消息列表
+    function renderEditorList() {
+      const container = document.getElementById("messages-editor-list");
+      container.innerHTML = "";
+
+      appState.messages.forEach((msg, idx) => {
+        const item = document.createElement("div");
+        item.className = "flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200";
+
+        let tag = "";
+        if (msg.type === 'me') tag = '<span class="px-2 py-0.5 text-[11px] bg-blue-100 text-blue-700 font-semibold rounded shrink-0">我方</span>';
+        else if (msg.type === 'other') tag = '<span class="px-2 py-0.5 text-[11px] bg-pink-100 text-pink-700 font-semibold rounded shrink-0">对方</span>';
+        else tag = '<span class="px-2 py-0.5 text-[11px] bg-amber-100 text-amber-700 font-semibold rounded shrink-0">系统/时间</span>';
+
+        item.innerHTML = `
+          ${tag}
+          <input type="text" value="${msg.content.replace(/"/g, '&quot;')}" oninput="updateMessageContent(${idx}, this.value)" class="flex-1 text-xs px-2.5 py-1.5 bg-white border rounded-lg focus:ring-1 focus:ring-blue-500 outline-none">
+          <button onclick="removeMessage(${idx})" class="text-slate-400 hover:text-red-500 px-1 text-base leading-none">&times;</button>
+        `;
+        container.appendChild(item);
       });
     }
 
-    btnMobilePreview.addEventListener('click', async () => {
-      notify('正在生成预览弹窗...');
-      const canvas = await captureRenderedCanvas();
-      if (canvas) {
-        openMobilePreviewModal(canvas);
+    // 快捷情境剧本
+    function applyPreset(type) {
+      if (type === 'icebreak') {
+        appState.messages = [
+          { type: "system", content: "Laya 平台提倡真誠交友，請遵守平台《交友守則》" },
+          { type: "other", content: "嗨囉！看到你也喜歡戶外活動～" },
+          { type: "me", content: "對呀！剛看你主頁有去爬抹茶山，風景超美！" },
+          { type: "other", content: "真的！上去雖然累但超值得，下次可以一起揪團！" }
+        ];
+      } else if (type === 'dating') {
+        appState.messages = [
+          { type: "system", content: "星期五 19:42" },
+          { type: "other", content: "明天晚上有空嗎？朋友推薦了一家氛圍超棒的餐酒館 🍷" },
+          { type: "me", content: "有呀！大概幾點？我提前訂位！" },
+          { type: "other", content: "七點半可以嗎？捷運站集合一起過去 ✨" },
+          { type: "me", content: "沒問題，明天見囉！" }
+        ];
       }
-    });
-
-    function closePreviewModal() {
-      exportPreviewModal.classList.add('opacity-0');
-      setTimeout(() => {
-        exportPreviewModal.classList.add('hidden');
-      }, 200);
+      renderEditorList();
+      render();
     }
-    btnCloseModalX.addEventListener('click', closePreviewModal);
-    btnCloseModalBottom.addEventListener('click', closePreviewModal);
-    exportPreviewModal.addEventListener('click', (e) => {
-      if (e.target === exportPreviewModal) closePreviewModal();
-    });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !exportPreviewModal.classList.contains('hidden')) {
-        closePreviewModal();
+    // 核心渲染函数：更新右侧手机画面
+    function render() {
+      // 1. 同步资料与名片
+      const name = document.getElementById("target-name").value || "柔柔";
+      const age = document.getElementById("target-age").value || "23";
+      const height = document.getElementById("target-height").value || "165cm";
+      const city = document.getElementById("target-city").value || "台北市";
+      const constel = document.getElementById("target-constellation").value || "雙子座";
+      const dist = document.getElementById("target-distance").value || "約 2.1 km";
+      const isOnline = document.getElementById("target-online").value === "true";
+
+      document.getElementById("preview-nav-name").innerText = name;
+      document.getElementById("preview-card-name").innerText = name;
+      document.getElementById("preview-card-details").innerText = `${age}歲 · ${height} · ${city} · ${constel}`;
+      document.getElementById("preview-card-dist").innerText = `距離你 ${dist}`;
+      document.getElementById("preview-card-avatar").src = appState.targetAvatar;
+      document.getElementById("preview-card-online").style.display = isOnline ? "block" : "none";
+
+      // 2. 状态栏配置
+      document.getElementById("preview-time").innerText = document.getElementById("status-time").value || "16:04";
+      const battery = Math.min(100, Math.max(1, parseInt(document.getElementById("status-battery").value || 86)));
+      document.getElementById("preview-battery-num").innerText = battery;
+      document.getElementById("preview-battery-bar").style.width = battery + "%";
+
+      document.getElementById("preview-network").innerText = document.getElementById("status-network").value;
+      document.getElementById("preview-vpn").style.display = document.getElementById("status-vpn").value === "show" ? "inline-block" : "none";
+      document.getElementById("preview-shield").style.display = document.getElementById("show-shield").checked ? "inline-flex" : "none";
+      document.getElementById("preview-alipay").style.display = document.getElementById("show-alipay").checked ? "inline-flex" : "none";
+      document.getElementById("preview-camera").style.display = document.getElementById("show-camera").checked ? "block" : "none";
+
+      // 3. 机身外壳展示切换
+      const showFrame = document.getElementById("show-frame").checked;
+      const phoneShell = document.getElementById("phone-shell");
+      if (showFrame) {
+        phoneShell.className = "w-[375px] rounded-[44px] p-[10px] bg-slate-900 shadow-2xl ring-1 ring-slate-800/80 relative";
+      } else {
+        phoneShell.className = "w-[375px] p-0 bg-transparent shadow-none relative";
       }
-    });
+
+      // 4. 对话列表渲染 (繁体气泡)
+      const container = document.getElementById("preview-messages-container");
+      container.innerHTML = "";
+
+      appState.messages.forEach(msg => {
+        if (msg.type === 'system') {
+          const sysDiv = document.createElement("div");
+          sysDiv.className = "text-center my-2";
+          sysDiv.innerHTML = `
+            <span class="inline-block px-3 py-1 bg-black/5 text-[11px] text-slate-500 rounded-full">
+              ${msg.content}
+            </span>
+          `;
+          container.appendChild(sysDiv);
+        } else if (msg.type === 'other') {
+          const row = document.createElement("div");
+          row.className = "flex items-start space-x-2.5";
+          row.innerHTML = `
+            <img src="${appState.targetAvatar}" class="w-9 h-9 rounded-full object-cover shrink-0 mt-0.5 shadow-sm" alt="對方">
+            <div class="max-w-[72%] bg-white text-slate-800 text-[13px] leading-relaxed px-3.5 py-2.5 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100">
+              ${msg.content}
+            </div>
+          `;
+          container.appendChild(row);
+        } else if (msg.type === 'me') {
+          const row = document.createElement("div");
+          row.className = "flex items-start justify-end space-x-2.5";
+          row.innerHTML = `
+            <div class="max-w-[72%] bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[13px] leading-relaxed px-3.5 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
+              ${msg.content}
+            </div>
+            <img src="${appState.myAvatar}" class="w-9 h-9 rounded-full object-cover shrink-0 mt-0.5 shadow-sm" alt="我">
+          `;
+          container.appendChild(row);
+        }
+      });
+    }
+
+    // 高清图片导出
+    function exportImage() {
+      const captureElem = document.getElementById("show-frame").checked 
+        ? document.getElementById("phone-shell") 
+        : document.getElementById("screen-display");
+
+      html2canvas(captureElem, {
+        scale: 2.5,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Laya_Chat_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }).catch(err => {
+        alert("截屏生成失败，请重试：" + err.message);
+      });
+    }
   </script>
 </body>
 </html>
